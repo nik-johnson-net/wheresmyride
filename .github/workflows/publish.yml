@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
+      - name: Install dependencies
+        run: npm install --production
       - name: Build react app
         run: npm run build
       - name: Upload GitHub Pages artifact
