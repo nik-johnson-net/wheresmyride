@@ -64,6 +64,20 @@ def load_trips(zipdata):
         r[5], # block_id
         int(r[6]), # shape_id
     ])
+   
+def load_schedules(zipdata):
+    return load_data(zipdata, 'calendar.txt', lambda r: [
+        r[0], # service id
+        int(r[1]), # monday
+        int(r[2]), # tuesday
+        int(r[3]), # wednesday
+        int(r[4]), # thursday
+        int(r[5]), # friday
+        int(r[6]), # saturday
+        int(r[7]), # sunday
+        r[8], # start date
+        r[9], # end date
+    ])
 
 def stop_info(stops, stop_id):
     stop = [s for s in stops if s[0] == stop_id]
@@ -89,13 +103,20 @@ def build_stops(trip_id, stops, stop_times):
     return result
 
 def build_route(route, trips, stops, stop_times):
+    # Group trips by service
     trips = [t for t in trips if t[0] == route[0]]
-    route_trips = [{
-        'id': t[2],
-        'headsign': t[3],
-        'direction': t[4],
-        'stops': build_stops(t[2], stops, stop_times),
-    } for t in trips]
+    trips_by_schedule = {}
+    for trip in trips:
+        if trips_by_schedule.get(trip[1]) is None:
+            trips_by_schedule[trip[1]] = []
+        trip_data = {
+            'id': trip[2],
+            'headsign': trip[3],
+            'direction': trip[4],
+            'stops': build_stops(trip[2], stops, stop_times),
+        }
+        trips_by_schedule[trip[1]].append(trip_data)
+
     return {
         'id': route[0],
         'short_name': route[2],
@@ -103,9 +124,8 @@ def build_route(route, trips, stops, stop_times):
         'desc': route[4],
         'type': route[5],
         'url': route[6],
-        'trips': route_trips,
+        'trips': trips_by_schedule,
     }
-
 
 if __name__ == "__main__":
     print("Downloading RTD GTFS data")
@@ -117,6 +137,7 @@ if __name__ == "__main__":
             stops = load_stops(zipdata)
             stop_times = load_stop_times(zipdata)
             trips = load_trips(zipdata)
+            schedules = load_schedules(zipdata)
 
     if os.path.exists('public/routes'):
         for root, dirs, files in os.walk('public/routes', topdown = False):
@@ -143,4 +164,22 @@ if __name__ == "__main__":
         } for r in routes]
         f.write(json.dumps({
             'routes': route_index,
+        }))
+
+    print("Building service day definitions")
+    with open("public/routes/schedules.json", mode='w') as f:
+        schedule_data = [{
+            'id': s[0],
+            'monday': s[1],
+            'tuesday': s[2],
+            'wednesday': s[3],
+            'thursday': s[4],
+            'friday': s[5],
+            'saturday': s[6],
+            'sunday': s[7],
+            'start_date': s[8],
+            'end_date': s[9],
+        } for s in schedules]
+        f.write(json.dumps({
+            'services': schedule_data,
         }))

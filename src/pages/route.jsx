@@ -6,6 +6,7 @@ export default function Route() {
     let { route } = useParams();
     // console.log("load")
 
+    const [serviceSchedule, setServiceSchedule] = useState('')
     const [direction, setDirection] = useState(0);
     const [fromStop, setFromStop] = useState(0);
     const [toStop, setToStop] = useState(0);
@@ -14,13 +15,21 @@ export default function Route() {
 
     useEffect(() => {
         if (routeData !== undefined) {
-            let directionTrips = routeData.trips.filter(trip => trip.direction === direction);
-            if (directionTrips.length > 0) {
-                let directionStops = directionTrips[0].stops;
-                setDirectionStops(directionStops);
+            if (serviceSchedule === '') {
+                let schedule = Object.keys(routeData.trips)[0];
+                if (schedule !== undefined) {
+                    setServiceSchedule(schedule);
+                }
+            }
+            if (routeData.trips[serviceSchedule] !== undefined) {
+                let directionTrips = routeData.trips[serviceSchedule].filter(trip => trip.direction === direction);
+                if (directionTrips.length > 0) {
+                    let directionStops = directionTrips[0].stops;
+                    setDirectionStops(directionStops);
+                }
             }
         }
-    }, [routeData, direction, setDirection, setDirectionStops]);
+    }, [routeData, direction, serviceSchedule, setDirectionStops, setServiceSchedule]);
         
     useEffect(() => {
         if (directionStops !== undefined && directionStops.length > 1) {
@@ -29,13 +38,17 @@ export default function Route() {
         }
     }, [setFromStop, setToStop, directionStops]);
 
-    if (routeData == null) {
+    if (routeData === null || serviceSchedule === '') {
         return (<div className="spinner-border" role="status">
         <span className="visually-hidden">Loading...</span>
       </div>)
     }
 
-    let trips = routeData.trips
+    let scheduleSelect = Object.keys(routeData.trips).map((sched) =>
+        <option key={sched} value={sched}>{sched}</option>
+    );
+
+    let trips = routeData.trips[serviceSchedule]
         .filter((trip) => trip.direction === direction)
         .sort((a, b) => a.stops[0].departure_time.localeCompare(b.stops[0].departure_time))
         .flatMap((trip) => {
@@ -62,6 +75,9 @@ export default function Route() {
             <h1>{routeData.short_name}: {routeData.long_name}</h1>
             <p>{routeData.desc}</p>
             <form className="form-inline">
+                <select className="custom-select" value={serviceSchedule} onChange={e => setServiceSchedule(e.target.value)}>
+                    {scheduleSelect}
+                </select>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="radio" checked={direction === 0} name="radioDirection" id="radioDirectionInbound" value="0" onChange={e => setDirection(0)} />
                     <label className="form-check-label" htmlFor="inlineRadio1">Inbound</label>
