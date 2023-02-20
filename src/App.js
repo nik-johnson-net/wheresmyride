@@ -1,13 +1,14 @@
 import './App.css';
 import {
-  createBrowserRouter,
+  createHashRouter,
   RouterProvider,
 } from "react-router-dom";
 import Index from "./pages/index";
 import Route from './pages/route';
 
 function App() {
-  let router = createBrowserRouter([
+  console.log("Starting with basename", process.env.PUBLIC_URL);
+  let router = createHashRouter([
     {
       path: "/",
       element: <Index/>,
@@ -16,9 +17,7 @@ function App() {
       path: "/route/:route",
       element: <Route />,
     }
-  ], {
-    basename: process.env.PUBLIC_URL,
-  });
+  ]);
 
   return (
     <RouterProvider router={router} />

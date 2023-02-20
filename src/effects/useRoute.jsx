@@ -4,7 +4,7 @@ export default function useRoute(route) {
     const [routeList, setRouteList] = useState();
 
     useEffect(() => {
-        fetch(`/routes/${route}.json`).then((resp) => {
+        fetch(`${process.env.PUBLIC_URL}/routes/${route}.json`).then((resp) => {
             if (!resp.ok) {
                 console.log("failed to get rtd route", route, resp.statusText)
                 setRouteList({})

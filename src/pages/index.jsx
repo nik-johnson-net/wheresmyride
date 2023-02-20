@@ -1,4 +1,5 @@
 import useRouteIndex from '../effects/useRouteIndex';
+import { Link } from "react-router-dom";
 
 export default function Index() {
     console.log("load")
@@ -13,7 +14,7 @@ export default function Index() {
 
     let routeLinks = routes.routes.map(route =>
         <li className="nav-item">
-            <a className="nav-link" href={`${process.env.PUBLIC_URL}/route/${route.route}`}>{route.short_name}: {route.long_name}</a>
+            <Link className="nav-link" to={`/route/${route.route}`}>{route.short_name}: {route.long_name}</Link>
         </li>
     )
     
