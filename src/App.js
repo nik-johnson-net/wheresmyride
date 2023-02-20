@@ -16,7 +16,9 @@ function App() {
       path: "/route/:route",
       element: <Route />,
     }
-  ]);
+  ], {
+    basename: process.env.PUBLIC_URL,
+  });
 
   return (
     <RouterProvider router={router} />
