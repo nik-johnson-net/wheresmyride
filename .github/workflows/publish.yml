@@ -28,6 +28,8 @@ jobs:
         run: npm install --production
       - name: Build react app
         run: npm run build
+        env:
+          PUBLIC_URL: https://nik-johnson-net.github.io/wheresmyride/
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v1.0.7
         with:

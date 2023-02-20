@@ -4,7 +4,7 @@ export default function useRouteIndex() {
     const [routeList, setRouteList] = useState();
 
     useEffect(() => {
-        fetch(`/routes/routes.json`).then((resp) => {
+        fetch(`${process.env.PUBLIC_URL}/routes/routes.json`).then((resp) => {
             if (!resp.ok) {
                 console.log("failed to get rtd route index", resp.statusText)
                 setRouteList({})

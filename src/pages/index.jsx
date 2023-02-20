@@ -13,7 +13,7 @@ export default function Index() {
 
     let routeLinks = routes.routes.map(route =>
         <li className="nav-item">
-            <a className="nav-link" href={`/route/${route.route}`}>{route.short_name}: {route.long_name}</a>
+            <a className="nav-link" href={`${process.env.PUBLIC_URL}/route/${route.route}`}>{route.short_name}: {route.long_name}</a>
         </li>
     )
     
