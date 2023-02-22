@@ -30,17 +30,8 @@ export default function NextTrip(props) {
           return false
         }
 
-        const departureTimeParts = departureStop.departure_time.split(":");
-
         // The date the train must arrive after.
-        const departureTimeAsDate = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          currentDate.getDay(),
-          Number(departureTimeParts[0]),
-          Number(departureTimeParts[1]),
-          Number(departureTimeParts[3])
-        );
+        const departureTimeAsDate = stopTimeToDate(currentDate, departureStop.departure_time);
         const adjustedDate = new Date(currentDate.getTime() + trip.travelTime * 60000);
 
         return adjustedDate.getTime() < departureTimeAsDate.getTime();
@@ -54,19 +45,19 @@ export default function NextTrip(props) {
       if (nextTrip === undefined) {
         setNextTrip({error: "No available trips."});
       } else {
-        setNextTrip(buildNextStop(nextTrip));
+        setNextTrip(buildNextStop(nextTrip, trip));
       }
     }
   }, [routeData, schedules, trip])
 
   let body;
-  if (nextTrip === {} || nextTrip.error) {
+  if (Object.keys(nextTrip).length === 0 || nextTrip.error) {
     body = <p>{nextTrip.error}</p>;
   } else {
     body = (
       <div>
-        <p>{nextTrip.departureStopName} to {nextTrip.arrivalStopName}</p>
-        <p>Leave at {nextTrip.leaveBy}</p>
+        <p>Take the {trip.route} from {nextTrip.departureStopName} to {nextTrip.arrivalStopName}</p>
+        <p>Leave at {`${nextTrip.leaveBy.getHours()}:${nextTrip.leaveBy.getMinutes()}`}</p>
         <p>There are no service alerts.</p>
       </div>
     );
@@ -89,14 +80,14 @@ function buildNextStop(nextTrip, trip) {
 
   const departureTime = stopTimeToDate(currentDate, departureStop.departure_time);
   const arrivalTime = stopTimeToDate(currentDate, destinationStop.arrival_time);
-
+  const leaveBy = new Date(departureTime.getTime() - (trip.travelTime * 60000));
   return {
     trip: nextTrip,
     departureStopName: departureStop.stop_name,
     departureTime,
     arrivalStopName: destinationStop.stop_name,
     arrivalTime,
-    leaveBy: new Date(nextTrip.departureTime.getTime() - (trip.travelTime * 60000)),
+    leaveBy: leaveBy,
   }
 }
 
@@ -105,9 +96,9 @@ function stopTimeToDate(date, stopTime) {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
-    date.getDay(),
+    date.getDate(),
     Number(stopTimeParts[0]),
     Number(stopTimeParts[1]),
-    Number(stopTimeParts[3])
+    Number(stopTimeParts[2])
   );
 }
