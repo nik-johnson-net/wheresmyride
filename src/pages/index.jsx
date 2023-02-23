@@ -1,29 +1,20 @@
-import useRouteIndex from '../effects/useRouteIndex';
 import { Link } from "react-router-dom";
+import NextTrip from '../components/nextTrip';
 
 export default function Index() {
-    console.log("load")
-
-    const routes = useRouteIndex();
-    
-    if (routes == null) {
-        return (<div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>)
+    const defaultTrip = window.localStorage.getItem('defaultTrip');
+    let element;
+    if (defaultTrip) {
+        const tripValue = window.localStorage.getItem(`trip/${defaultTrip}`);
+        const trip = JSON.parse(tripValue);
+        element = <NextTrip trip={trip} />;
+    } else {
+        element = <p>It looks like you don't have trips. Would you like to create a <Link to={'/newtrip'}>new trip</Link>?</p>;
     }
-
-    let routeLinks = routes.routes.map(route =>
-        <li className="nav-item">
-            <Link className="nav-link" to={`/route/${route.route}`}>{route.short_name}: {route.long_name}</Link>
-        </li>
-    )
     
     return (
         <div>
-            <h1>Where's My Ride?</h1>
-            <ul className="nav flex-column">
-                {routeLinks}
-            </ul>
+            {element}
         </div>
     );
 }
