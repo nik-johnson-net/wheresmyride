@@ -38,6 +38,7 @@ export default function NewTrip() {
 
   return (
     <div>
+      <h1>New Trip</h1>
       {errors}
       <Loading isLoading={routeIndex === undefined}>
         <form onSubmit={handleSubmit}>
