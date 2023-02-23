@@ -15,6 +15,9 @@ export default function NewTrip() {
   function handleSubmit(e) {
     e.preventDefault();
     storage.setItem(`trip/${formState.name}`, JSON.stringify(formState));
+    if (!storage.getItem("defaultTrip")) {
+      storage.setItem("defaultTrip", formState.name);
+    }
     navigate(`/trip/${formState.name}`);
   }
 

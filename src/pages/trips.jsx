@@ -7,22 +7,22 @@ export default function Trips() {
   const [trips, setTrips] = useState([]);
   const [defaultTrip, setDefaultTrip] = useState(defaultTripName);
   const generateTrips = useCallback(() => {
-    let trips = [];
-    const storage = window.localStorage;
-    for (let i = 0; i < storage.length; i++) {
-      const key = storage.key(i);
-      if (key.startsWith("trip/")) {
-        const trip = JSON.parse(storage.getItem(key));
-        trips.push(trip);
-      }
-    }
-
+    const trips = getTrips();
     setDefaultTrip(window.localStorage.getItem("defaultTrip"));
     setTrips(trips);
   }, [setTrips]);
 
   const onDelete = useCallback((tripName) => {
     window.localStorage.removeItem(`trip/${tripName}`);
+    if (window.localStorage.getItem("defaultTrip") === tripName) {
+      const trips = getTrips();
+      if (trips.length > 0) {
+        const nextItem = trips[0];
+        window.localStorage.setItem("defaultTrip", nextItem.name);
+      } else {
+        window.localStorage.removeItem("defaultTrip");
+      }
+    }
     generateTrips();
   }, [generateTrips]);
 
@@ -59,4 +59,17 @@ export default function Trips() {
       </tbody>
     </table>
   </div>);
+}
+
+function getTrips() {
+  let trips = [];
+  const storage = window.localStorage;
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key.startsWith("trip/")) {
+      const trip = JSON.parse(storage.getItem(key));
+      trips.push(trip);
+    }
+  }
+  return trips;
 }
